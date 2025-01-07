@@ -1,10 +1,8 @@
-source("C:/Users/bengr/OneDrive/Acadamic/IDDO/Code/LB_syn_wide/prepprocessing.R")
-
+source("R/prepprocessing.R")
 
 DMLB$is_real <- "T"
 DMLB_syn$is_real <- "F"
 DMLB_dist <- rbind(DMLB, DMLB_syn)
-
 
 # Convert the target variable to a factor if it's not already
 DMLB_dist$is_real <- as.factor(DMLB_dist$is_real)
@@ -15,7 +13,6 @@ trainIndex <- createDataPartition(DMLB_dist$is_real, p = 0.8,
 DMLB_dist_train <- DMLB_dist[ trainIndex,]
 DMLB_dist_test  <- DMLB_dist[-trainIndex,]
 
-
 tune_grid <- expand.grid(
   nrounds = c(100, 150, 200),   # Number of boosting rounds
   max_depth = c(3, 5, 7),       # Maximum depth of trees
@@ -25,7 +22,6 @@ tune_grid <- expand.grid(
   min_child_weight = 1,         # Minimum sum of instance weight (hessian) needed in a child
   subsample = 0.8               # Subsample ratio of the training instance
 )
-
 
 cv_control <- trainControl(
   method = "cv",                # Cross-validation
@@ -46,7 +42,6 @@ gbdt_mult <- train(
   na.action = na.pass
 )
 
-
 # Extract the results
 results_mult <- gbdt_mult$results[, c("nrounds", "max_depth", "eta", "ROC")]
 print(results_mult)
@@ -57,10 +52,7 @@ prob_real_mult <- pred_prob_mult[, "T"]
 dist_score_mult <- mean((prob_real_mult - 0.5)^2)
 print(paste("Distinguishability Score:", dist_score_mult))
 
-
-
-# - Retrain Specific Tree - #
-
+# - Retrain Specific Tree - # ------------------------------------------------------------------------
 
 tune_grid <- expand.grid(
   nrounds = c(200),    # Number of boosting rounds
@@ -91,20 +83,16 @@ gbdt_27 <- train(
   na.action = na.pass
 )
 
-
-# - Evaluation - #
-
-
+# - Evaluation - # ----------------------------------------------------------------------------------
 # Extract the results
 results_27 <- data.frame(gbdt_27$results)
 results_27 <- data.frame(results_27[, c("nrounds", "max_depth", "eta", "ROC")])
 print(results_27)
 
-
 # Predict the probabilities on the test set
 pred_prob_27 <- predict(gbdt_27, newdata = DMLB_dist_test, type = "prob")
 prob_real_27 <- pred_prob_27[, "T"]
+
 # Compute the distinguishability score
 dist_score_27 <- mean((prob_real_27 - 0.5)^2)
 print(paste("Distinguishability Score:", dist_score_27))
-

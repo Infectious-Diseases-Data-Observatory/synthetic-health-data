@@ -1,11 +1,6 @@
-source("C:/Users/bengr/OneDrive/Acadamic/IDDO/Code/LB_syn_wide/prepprocessing.R")
+source("R/prepprocessing.R")
 
-
-
-# --- EDA --- #
-
-
-
+# --- EDA --- # ---------------------------------------------------------------------------------------------
 # Synthpop compare() function
   # real vs synthetic distributions of variables
 # Own comparison
@@ -14,12 +9,8 @@ source("C:/Users/bengr/OneDrive/Acadamic/IDDO/Code/LB_syn_wide/prepprocessing.R"
   # Box plot of real vs synthetic for planned visit 
     # 
 
-
-
-
 LB_syn <- DMLB_syn %>% select(1, 9:14)
 LB_real <- DMLB %>% select(1, 9:14)
-
 
 # Pivot real longer
 LB_real_long <- LB_real %>%
@@ -32,7 +23,6 @@ LB_syn_long <- LB_syn %>%
   pivot_longer(cols = starts_with("HGB_"), names_to = "LBDY", 
                names_prefix = "HGB_", values_to = "LBSTRESN") %>%
   mutate(LBDY = as.numeric(LBDY))
-
 
 # Summary stats for real
 summary_real <- LB_real_long %>%
@@ -54,7 +44,6 @@ summary_syn <- LB_syn_long %>%
   ) %>%
   mutate(se = sd / sqrt(n))
 
-
 # PLOT line of means over time
 plot_1 <- ggplot() +
   geom_line(data = summary_real, 
@@ -69,10 +58,8 @@ plot_1 <- ggplot() +
   theme(panel.background = element_rect(fill = "white", color = NA),
         plot.background = element_rect(fill = "white", color = NA)) 
 
-ggsave(filename = "C:/Users/bengr/OneDrive/Acadamic/IDDO/Code/Images/means.png", 
+ggsave(filename = "plots/means.png", 
        plot = plot_1, width = 6, height = 3)
-
-
 
 # Combine real and synthetic
 LB_combined <- bind_rows(
@@ -91,5 +78,5 @@ plot_2 <- ggplot(LB_combined, aes(x = as.factor(LBDY), y = LBSTRESN, fill = Data
   theme(panel.background = element_rect(fill = "white", color = NA),
         plot.background = element_rect(fill = "white", color = NA)) 
 
-ggsave(filename = "C:/Users/bengr/OneDrive/Acadamic/IDDO/Code/Images/boxplot.png", 
+ggsave(filename = "plots/boxplot.png", 
        plot = plot_2, width = 6, height = 4)
